@@ -1,4 +1,4 @@
-package se.snrn.anteater;
+package se.snrn.anteater.gameworld;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -14,6 +14,8 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import se.snrn.anteater.pickups.HoneyComb;
+import se.snrn.anteater.InputManager;
 import se.snrn.anteater.player.Player;
 
 
@@ -49,8 +51,6 @@ public class GameWorld implements Screen {
         tiledMap = tmxMapLoader.load("map.tmx");
         tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
         tiledMapRenderer.setView(orthographicCamera);
-        player = new Player(32, 32);
-        inputManager = new InputManager(player);
         shapeRenderer = new ShapeRenderer();
 
         mapReader = new MapReader(tiledMap);
@@ -58,7 +58,9 @@ public class GameWorld implements Screen {
         honeyCombs = mapReader.getHoneyCombs();
         walls = mapReader.getWalls();
 
-        collisionManager = new CollisionManager(player, honeyCombs, walls);
+        collisionManager = new CollisionManager(honeyCombs, walls);
+        player = new Player(32, 33, collisionManager);
+        inputManager = new InputManager(player);
 
         Gdx.input.setInputProcessor(inputManager);
 

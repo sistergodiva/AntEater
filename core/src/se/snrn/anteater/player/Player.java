@@ -4,14 +4,21 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import se.snrn.anteater.Debuggable;
 import se.snrn.anteater.Renderable;
 import se.snrn.anteater.Updatable;
+import se.snrn.anteater.gameworld.Collision;
+import se.snrn.anteater.gameworld.CollisionManager;
+import se.snrn.anteater.gameworld.RectSide;
 import se.snrn.anteater.player.playerstates.GroundState;
 
-import static se.snrn.anteater.GameWorld.GRAVITY;
+import static se.snrn.anteater.gameworld.GameWorld.GRAVITY;
+import static se.snrn.anteater.player.PlayerInput.LAND;
+import static se.snrn.anteater.player.PlayerInput.LEFT_STOP;
+import static se.snrn.anteater.player.PlayerInput.RIGHT_STOP;
 
 public class Player implements Updatable, Renderable, Debuggable {
 
@@ -20,17 +27,20 @@ public class Player implements Updatable, Renderable, Debuggable {
     private float x;
     private float y;
     private Rectangle rect;
-    private Rectangle nextRect;
-    private Vector2 nextFeet;
 
     private PlayerState playerState;
     private Direction direction;
     private Vector2 velocity;
-    private Vector2 playerVector;
-    private Vector2 feet;
-    private Vector2 nextPlace;
+    private Vector2 north;
+    private Vector2 east;
+    private Vector2 south;
+    private Vector2 west;
 
-    public Player(float x, float y) {
+    private CollisionManager collisionManager;
+    private Collision feetCollision;
+
+    public Player(float x, float y, CollisionManager collisionManager) {
+        this.collisionManager = collisionManager;
         this.sprite = new Sprite(new Texture("anteater.png"));
         this.x = x;
         this.y = y;
@@ -38,12 +48,65 @@ public class Player implements Updatable, Renderable, Debuggable {
         rect = sprite.getBoundingRectangle();
         playerState = new GroundState(this);
         velocity = new Vector2(0, 0);
-        feet = new Vector2(x + rect.getWidth() / 2, y);
         direction = Direction.LEFT;
-        playerVector = new Vector2(this.x, this.y);
-        nextPlace = new Vector2(0, 0);
-        nextFeet = new Vector2();
-        nextRect = new Rectangle(nextPlace.x, nextPlace.y, sprite.getWidth(), sprite.getHeight());
+        north = new Vector2(this.x + rect.getWidth() / 2, this.y + rect.getHeight());
+        east = new Vector2(this.x + rect.getWidth(), this.y + rect.getHeight() / 2);
+        south = new Vector2(this.x + rect.getWidth() / 2, this.y);
+        west = new Vector2(this.x, this.y + rect.getHeight() / 2);
+        feetCollision = null;
+    }
+
+    @Override
+    public void update(float delta) {
+        playerState.update(delta);
+
+
+        if (velocity.x > 0) {
+            direction = Direction.RIGHT;
+        } else if (velocity.x < 0) {
+            direction = Direction.LEFT;
+        }
+
+        velocity.add(GRAVITY);
+
+
+        if (collisionManager.isInsideWall(west)) {
+            Collision collision = collisionManager.getCollision(west);
+            if (collision.getRectSide() == RectSide.RIGHT) {
+                handleInput(LEFT_STOP);
+                x = collision.getRect().getX() + collision.getRect().getWidth()+1;
+            }
+        }
+
+        if (collisionManager.isInsideWall(east)) {
+            Collision collision = collisionManager.getCollision(east);
+            if (collision.getRectSide() == RectSide.LEFT) {
+                handleInput(RIGHT_STOP);
+                x = collision.getRect().getX()-rect.getWidth()+1;
+            }
+        }
+
+        if (collisionManager.isInsideWall(south)) {
+            Collision collision = collisionManager.getCollision(south);
+            if (collision.getRectSide() == RectSide.TOP) {
+                handleInput(LAND);
+                velocity.y = MathUtils.clamp(velocity.y, 0, 99);
+                y = collision.getRect().getY() + collision.getRect().getHeight();
+            }
+
+        }
+
+
+        x += velocity.x;
+        y += velocity.y;
+
+        rect.setPosition(x, y);
+
+        north.set(x + rect.getWidth() / 2, y + rect.getHeight());
+        east.set(x + rect.getWidth(), y + rect.getHeight() / 2);
+        south.set(x + rect.getWidth() / 2, y);
+        west.set(x, y + rect.getHeight() / 2);
+
     }
 
     public void handleInput(PlayerInput playerInput) {
@@ -61,43 +124,11 @@ public class Player implements Updatable, Renderable, Debuggable {
         }
     }
 
-    public Vector2 getNextPlace() {
-        return nextPlace;
-    }
-
-    @Override
-    public void update(float delta) {
-        playerState.update(delta);
-
-
-
-        if (velocity.x > 0) {
-            direction = Direction.RIGHT;
-        } else if (velocity.x < 0) {
-            direction = Direction.LEFT;
-        }
-
-
-
-
-        velocity.add(GRAVITY);
-        playerVector.add(velocity);
-        rect.setPosition(playerVector.x, playerVector.y);
-        feet.set(playerVector.x + rect.getWidth() / 2, playerVector.y);
-
-
-        nextPlace.set(playerVector);
-        nextPlace.add(velocity);
-
-        nextRect.setPosition(nextPlace);
-        nextFeet.set(nextPlace.x + rect.getWidth() / 2, nextPlace.y);
-
-    }
 
     @Override
     public void render(Batch batch) {
         sprite.setFlip(direction == Direction.LEFT, false);
-        sprite.setPosition(playerVector.x, playerVector.y);
+        sprite.setPosition(x, y);
         sprite.draw(batch);
 
     }
@@ -105,26 +136,12 @@ public class Player implements Updatable, Renderable, Debuggable {
     @Override
     public void debug(ShapeRenderer shapeRenderer) {
         shapeRenderer.rect(rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight());
-        shapeRenderer.rect(nextRect.getX(), nextRect.getY(), nextRect.getWidth(), nextRect.getHeight());
-        shapeRenderer.circle(nextFeet.x, nextFeet.y, 4);
-
+        shapeRenderer.circle(north.x, north.y, 4);
+        shapeRenderer.circle(east.x, east.y, 4);
+        shapeRenderer.circle(south.x, south.y, 4);
+        shapeRenderer.circle(west.x, west.y, 4);
     }
 
-    public float getX() {
-        return playerVector.x;
-    }
-
-    public float getY() {
-        return playerVector.y;
-    }
-
-    public void setX(float x) {
-        playerVector.x = x;
-    }
-
-    public void setY(float y) {
-        playerVector.y = y;
-    }
 
     public void addYVelocity(float yVelocity) {
         velocity.y += yVelocity;
@@ -150,10 +167,6 @@ public class Player implements Updatable, Renderable, Debuggable {
         return rect;
     }
 
-    public Vector2 getFeet() {
-        return feet;
-    }
-
     public PlayerState getPlayerState() {
         return playerState;
     }
@@ -162,11 +175,12 @@ public class Player implements Updatable, Renderable, Debuggable {
         return direction;
     }
 
-    public Rectangle getNextRect() {
-        return nextRect;
+
+    public float getX() {
+        return x;
     }
 
-    public Vector2 getNextFeet() {
-        return nextFeet;
+    public float getY() {
+        return y;
     }
 }

@@ -1,59 +1,41 @@
-package se.snrn.anteater;
+package se.snrn.anteater.gameworld;
 
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import se.snrn.anteater.player.Player;
+import se.snrn.anteater.pickups.HoneyComb;
+import se.snrn.anteater.Updatable;
 
 
 import java.util.ArrayList;
 
 import static java.lang.Math.abs;
-import static se.snrn.anteater.player.PlayerInput.LAND;
-import static se.snrn.anteater.player.PlayerInput.LEFT_STOP;
-import static se.snrn.anteater.player.PlayerInput.RIGHT_STOP;
 
 
 public class CollisionManager implements Updatable {
 
-    private final Player player;
     private final ArrayList<HoneyComb> honeyCombs;
     private ArrayList<Rectangle> walls;
 
-    public CollisionManager(Player player, ArrayList<HoneyComb> honeyCombs, ArrayList<Rectangle> walls) {
+    public CollisionManager(ArrayList<HoneyComb> honeyCombs, ArrayList<Rectangle> walls) {
 
-        this.player = player;
+
         this.honeyCombs = honeyCombs;
         this.walls = walls;
     }
 
 
+    public boolean isInsideWall(Vector2 point) {
+        for (Rectangle wall : walls) {
+            if (getSideWithPoint(point, wall) != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public void update(float delta) {
-        for (HoneyComb honeyComb : honeyCombs) {
-            if (honeyComb.getRect().overlaps(player.getRect())) {
-                honeyComb.setPickedUp(true);
-            }
-        }
 
-        for (Rectangle wall : walls) {
-            if(getSideWithRect(player.getNextRect(),wall) == RectSide.LEFT) {
-                player.handleInput(RIGHT_STOP);
-            }
-
-            if(getSideWithRect(player.getNextRect(),wall) == RectSide.RIGHT) {
-                player.handleInput(LEFT_STOP);
-            }
-
-
-            if (getSideWithPoint(player.getNextFeet(), wall) == RectSide.TOP) {
-                player.setYVelocity(MathUtils.clamp(player.getVelocity().y, 0, 99));
-                if (player.getFeet().y < wall.getY() + wall.getHeight()) {
-                    player.setY(wall.getY() + wall.getHeight());
-                    player.handleInput(LAND);
-                }
-            }
-        }
     }
 
     public RectSide getSideWithPoint(Vector2 a, Rectangle b) {
@@ -65,7 +47,6 @@ public class CollisionManager implements Updatable {
         b.getCenter(vectorB);
         double dx = vectorA.x - vectorB.x;
         double dy = vectorA.y - vectorB.y;
-
 
         return getSide(dx, dy, w, h);
     }
@@ -100,8 +81,17 @@ public class CollisionManager implements Updatable {
         double dx = vectorA.x - vectorB.x;
         double dy = vectorA.y - vectorB.y;
 
-
         return getSide(dx, dy, w, h);
+    }
 
+    public Collision getCollision(Vector2 point) {
+        for (Rectangle wall : walls) {
+            RectSide rectSide = getSideWithPoint(point, wall);
+
+            if (rectSide != null) {
+                return new Collision(wall, rectSide);
+            }
+        }
+        return null;
     }
 }

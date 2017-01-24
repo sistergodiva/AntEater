@@ -2,6 +2,7 @@ package se.snrn.anteater;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import se.snrn.anteater.gameworld.GameWorld;
 
 public class AntEater extends Game {
     SpriteBatch batch;

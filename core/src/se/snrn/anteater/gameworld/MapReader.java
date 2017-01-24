@@ -1,10 +1,11 @@
-package se.snrn.anteater;
+package se.snrn.anteater.gameworld;
 
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Rectangle;
+import se.snrn.anteater.pickups.HoneyComb;
 
 import java.util.ArrayList;
 
