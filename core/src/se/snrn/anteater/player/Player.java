@@ -38,6 +38,7 @@ public class Player implements Updatable, Renderable, Debuggable {
 
     private CollisionManager collisionManager;
     private Collision feetCollision;
+    private Rectangle nextRect;
 
     public Player(float x, float y, CollisionManager collisionManager) {
         this.collisionManager = collisionManager;
@@ -54,6 +55,7 @@ public class Player implements Updatable, Renderable, Debuggable {
         south = new Vector2(this.x + rect.getWidth() / 2, this.y);
         west = new Vector2(this.x, this.y + rect.getHeight() / 2);
         feetCollision = null;
+        nextRect = new Rectangle(x, y, rect.getWidth(), rect.getHeight());
     }
 
     @Override
@@ -69,31 +71,40 @@ public class Player implements Updatable, Renderable, Debuggable {
 
         velocity.add(GRAVITY);
 
+        Vector2 bajs = new Vector2(100, 0);
 
-        if (collisionManager.isInsideWall(west)) {
-            Collision collision = collisionManager.getCollision(west);
-            if (collision.getRectSide() == RectSide.RIGHT) {
-                handleInput(LEFT_STOP);
-                x = collision.getRect().getX() + collision.getRect().getWidth()+1;
+
+
+
+
+        nextRect.setPosition(x + velocity.x, y + velocity.y);
+
+
+
+
+        if (collisionManager.getWallCollision(nextRect) != null) {
+            Rectangle wall = collisionManager.getWallCollision(nextRect);
+            if (x > wall.getX() - 4) {
+                if (collisionManager.getSideWithRect(nextRect, wall) == RectSide.RIGHT) {
+                    x = wall.getX() + wall.getWidth();
+                    handleInput(LEFT_STOP);
+                }
+            }
+            if (x < wall.getX() + 4) {
+                if (collisionManager.getSideWithRect(nextRect, wall) == RectSide.LEFT) {
+                    x = wall.getX() - rect.getWidth();
+                    handleInput(RIGHT_STOP);
+                }
             }
         }
 
-        if (collisionManager.isInsideWall(east)) {
-            Collision collision = collisionManager.getCollision(east);
-            if (collision.getRectSide() == RectSide.LEFT) {
-                handleInput(RIGHT_STOP);
-                x = collision.getRect().getX()-rect.getWidth()+1;
+        if (collisionManager.getGroundCollision(nextRect) != null) {
+            Rectangle ground = collisionManager.getGroundCollision(nextRect);
+            handleInput(LAND);
+            velocity.y = MathUtils.clamp(velocity.y, 0, 99);
+            if (y > ground.getY() - 4) {
+                y = ground.getY() + ground.getHeight();
             }
-        }
-
-        if (collisionManager.isInsideWall(south)) {
-            Collision collision = collisionManager.getCollision(south);
-            if (collision.getRectSide() == RectSide.TOP) {
-                handleInput(LAND);
-                velocity.y = MathUtils.clamp(velocity.y, 0, 99);
-                y = collision.getRect().getY() + collision.getRect().getHeight();
-            }
-
         }
 
 
@@ -136,6 +147,7 @@ public class Player implements Updatable, Renderable, Debuggable {
     @Override
     public void debug(ShapeRenderer shapeRenderer) {
         shapeRenderer.rect(rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight());
+        shapeRenderer.rect(nextRect.getX(), nextRect.getY(), nextRect.getWidth(), nextRect.getHeight());
         shapeRenderer.circle(north.x, north.y, 4);
         shapeRenderer.circle(east.x, east.y, 4);
         shapeRenderer.circle(south.x, south.y, 4);

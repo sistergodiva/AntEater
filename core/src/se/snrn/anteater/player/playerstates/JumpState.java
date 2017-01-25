@@ -57,7 +57,7 @@ public class JumpState implements PlayerState {
 
     @Override
     public void enter() {
-        player.addYVelocity(15);
+        player.addYVelocity(30);
     }
 
     @Override

@@ -23,7 +23,7 @@ import java.util.ArrayList;
 
 public class GameWorld implements Screen {
 
-    public static Vector2 GRAVITY = new Vector2(0, -1f);
+    public static final Vector2 GRAVITY = new Vector2(0, -1f);
     private ArrayList<Rectangle> walls;
     private ArrayList<HoneyComb> honeyCombs;
 
@@ -59,7 +59,7 @@ public class GameWorld implements Screen {
         walls = mapReader.getWalls();
 
         collisionManager = new CollisionManager(honeyCombs, walls);
-        player = new Player(32, 33, collisionManager);
+        player = new Player(256, 33, collisionManager);
         inputManager = new InputManager(player);
 
         Gdx.input.setInputProcessor(inputManager);

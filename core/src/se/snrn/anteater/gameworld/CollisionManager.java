@@ -94,4 +94,37 @@ public class CollisionManager implements Updatable {
         }
         return null;
     }
+
+    public Collision getRectCollision(Rectangle rectangle) {
+        for (Rectangle wall : walls) {
+            RectSide rectSide = getSideWithRect(rectangle, wall);
+
+            if (rectSide != null) {
+                return new Collision(wall, rectSide);
+            }
+        }
+        return null;
+    }
+
+    public Rectangle getGroundCollision(Rectangle rectangle) {
+        for (Rectangle wall : walls) {
+            RectSide rectSide = getSideWithRect(rectangle, wall);
+
+            if (rectSide == RectSide.TOP) {
+                return wall;
+            }
+        }
+        return null;
+    }
+
+    public Rectangle getWallCollision(Rectangle rectangle) {
+        for (Rectangle wall : walls) {
+            RectSide rectSide = getSideWithRect(rectangle, wall);
+
+            if (rectSide == RectSide.LEFT || rectSide == RectSide.RIGHT) {
+                return wall;
+            }
+        }
+        return null;
+    }
 }
