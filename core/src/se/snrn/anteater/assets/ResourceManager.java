@@ -1,4 +1,4 @@
-package se.snrn.anteater;
+package se.snrn.anteater.assets;
 
 
 import com.badlogic.gdx.graphics.Texture;

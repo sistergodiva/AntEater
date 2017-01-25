@@ -38,9 +38,11 @@ public class JumpState implements PlayerState {
         }
         if (input == LEFT_STOP) {
             player.getVelocity().x = MathUtils.clamp(player.getVelocity().x, 0, 99);
+            return null;
         }
         if (input == RIGHT_STOP) {
             player.getVelocity().x = MathUtils.clamp(player.getVelocity().x, -99, 0);
+            return null;
         }
 
         if (input == PlayerInput.JUMP_STOP) {

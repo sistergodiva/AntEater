@@ -1,4 +1,4 @@
-package se.snrn.anteater;
+package se.snrn.anteater.pickups;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -6,6 +6,10 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject;
 import com.badlogic.gdx.math.Rectangle;
+import se.snrn.anteater.Debuggable;
+import se.snrn.anteater.Renderable;
+import se.snrn.anteater.Updatable;
+import se.snrn.anteater.gameworld.GameWorld;
 
 public class HoneyComb implements Updatable, Renderable, Debuggable {
 
