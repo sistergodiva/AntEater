@@ -90,14 +90,14 @@ public class GameWorld implements Screen {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-
-
         tiledMapRenderer.setView(orthographicCamera);
         batch.setProjectionMatrix(orthographicCamera.combined);
         batch.begin();
         tiledMapRenderer.render();
 
         batch.end();
+
+
         batch.begin();
         player.render(batch);
         for (HoneyComb honeyComb: honeyCombs

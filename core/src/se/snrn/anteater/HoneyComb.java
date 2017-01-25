@@ -22,13 +22,10 @@ public class HoneyComb implements Updatable, Renderable, Debuggable {
         rect = new Rectangle(tiledMapTileMapObject.getX(), tiledMapTileMapObject.getY(), GameWorld.TILE_SIZE, GameWorld.TILE_SIZE);
 
         sprite = new Sprite(tiledMapTileMapObject.getTextureRegion().getTexture());
-
-
     }
 
     @Override
     public void update(float delta) {
-
     }
 
     @Override

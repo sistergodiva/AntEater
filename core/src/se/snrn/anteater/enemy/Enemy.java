@@ -13,19 +13,19 @@ public class Enemy implements Updatable, Renderable, Debuggable {
     private float x;
     private float y;
     private Sprite sprite;
-    Rectangle rect;
+    private Rectangle rect;
 
     public Enemy(float x, float y, Sprite sprite) {
         this.x = x;
         this.y = y;
         this.sprite = sprite;
         rect = sprite.getBoundingRectangle();
-        rect.setPosition(x,y);
+        rect.setPosition(x, y);
     }
 
     @Override
     public void update(float delta) {
-        rect.setPosition(x,y);
+        rect.setPosition(x, y);
     }
 
     @Override
