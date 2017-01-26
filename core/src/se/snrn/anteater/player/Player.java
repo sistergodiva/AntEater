@@ -56,6 +56,7 @@ public class Player implements Updatable, Renderable, Debuggable {
         west = new Vector2(this.x, this.y + rect.getHeight() / 2);
         feetCollision = null;
         nextRect = new Rectangle(x, y, rect.getWidth(), rect.getHeight());
+        playerState.enter();
     }
 
     @Override
@@ -71,45 +72,48 @@ public class Player implements Updatable, Renderable, Debuggable {
 
         velocity.add(GRAVITY);
 
+        MathUtils.clamp(velocity.y, -15, 99);
+
         Vector2 bajs = new Vector2(100, 0);
-
-
-
 
 
         nextRect.setPosition(x + velocity.x, y + velocity.y);
 
-
-
-
         if (collisionManager.getWallCollision(nextRect) != null) {
             Rectangle wall = collisionManager.getWallCollision(nextRect);
+
             if (x > wall.getX() - 4) {
                 if (collisionManager.getSideWithRect(nextRect, wall) == RectSide.RIGHT) {
-                    x = wall.getX() + wall.getWidth();
+                    if (velocity.x > 0) {
+                        x = wall.getX() + wall.getWidth();
+                    }
                     handleInput(LEFT_STOP);
                 }
             }
             if (x < wall.getX() + 4) {
                 if (collisionManager.getSideWithRect(nextRect, wall) == RectSide.LEFT) {
-                    x = wall.getX() - rect.getWidth();
+                    if (velocity.x < 0) {
+                        x = wall.getX() - rect.getWidth();
+                    }
                     handleInput(RIGHT_STOP);
                 }
             }
         }
 
+        x += velocity.x;
+
+
         if (collisionManager.getGroundCollision(nextRect) != null) {
             Rectangle ground = collisionManager.getGroundCollision(nextRect);
             handleInput(LAND);
             velocity.y = MathUtils.clamp(velocity.y, 0, 99);
-            if (y > ground.getY() - 4) {
+            if (y > ground.getY() - 4 && velocity.y < 0) {
                 y = ground.getY() + ground.getHeight();
             }
         }
 
-
-        x += velocity.x;
         y += velocity.y;
+
 
         rect.setPosition(x, y);
 

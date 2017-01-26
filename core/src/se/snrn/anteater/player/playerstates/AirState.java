@@ -28,12 +28,12 @@ public class AirState implements PlayerState {
     @Override
     public PlayerState handleInput(PlayerInput input) {
         if (input == PlayerInput.LEFT_START) {
-            player.getVelocity().set(-5, 0);
+            player.getVelocity().x = -5;
             return null;
 
         }
         if (input == PlayerInput.RIGHT_START) {
-            player.getVelocity().set(5, 0);
+            player.getVelocity().x = 5;
             return null;
 
         }

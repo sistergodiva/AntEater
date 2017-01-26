@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.maps.objects.PolylineMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -14,6 +15,9 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import se.snrn.anteater.enemy.Enemy;
+import se.snrn.anteater.enemy.EnemyFactory;
+import se.snrn.anteater.enemy.SplineFactory;
 import se.snrn.anteater.pickups.HoneyComb;
 import se.snrn.anteater.InputManager;
 import se.snrn.anteater.player.Player;
@@ -24,6 +28,8 @@ import java.util.ArrayList;
 public class GameWorld implements Screen {
 
     public static final Vector2 GRAVITY = new Vector2(0, -1f);
+    private Enemy snake;
+    private ArrayList<PolylineMapObject> enemyPaths;
     private ArrayList<Rectangle> walls;
     private ArrayList<HoneyComb> honeyCombs;
 
@@ -59,10 +65,15 @@ public class GameWorld implements Screen {
         walls = mapReader.getWalls();
 
         collisionManager = new CollisionManager(honeyCombs, walls);
-        player = new Player(256, 33, collisionManager);
+
+        enemyPaths = mapReader.getEnemyPaths();
+
+        player = new Player(512, 31, collisionManager);
         inputManager = new InputManager(player);
 
         Gdx.input.setInputProcessor(inputManager);
+
+        snake = EnemyFactory.createEnemy(0,0, enemyPaths);
 
     }
 
@@ -77,6 +88,7 @@ public class GameWorld implements Screen {
 
     private void update(float delta) {
         player.update(delta);
+        snake.update(delta);
         collisionManager.update(delta);
         orthographicCamera.position.set(player.getX(), player.getY(), 0);
         orthographicCamera.update();
@@ -102,6 +114,7 @@ public class GameWorld implements Screen {
 
         batch.begin();
         player.render(batch);
+        snake.render(batch);
         for (HoneyComb honeyComb: honeyCombs
                 ) {
             if(!honeyComb.isPickedUp()) {
@@ -120,6 +133,15 @@ public class GameWorld implements Screen {
                 ) {
             shapeRenderer.rect(wall.getX(), wall.getY(),wall.getWidth(),wall.getHeight());
         }
+        for (PolylineMapObject enemyPath: enemyPaths
+                ) {
+            float hej[] = enemyPath.getPolyline().getVertices();
+            for (int i = 0; i < hej.length; i++) {
+                shapeRenderer.circle(hej[i]+enemyPath.getPolyline().getX(), enemyPath.getPolyline().getY(), 5);
+            }
+        }
+
+
         shapeRenderer.end();
     }
 

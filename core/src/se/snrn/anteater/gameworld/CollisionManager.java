@@ -9,6 +9,7 @@ import se.snrn.anteater.Updatable;
 import java.util.ArrayList;
 
 import static java.lang.Math.abs;
+import static se.snrn.anteater.gameworld.RectSide.TOP;
 
 
 public class CollisionManager implements Updatable {
@@ -58,7 +59,7 @@ public class CollisionManager implements Updatable {
 
             if (wy > hx)
                 if (wy > -hx) {
-                    return RectSide.TOP;
+                    return TOP;
                 } else {
                     return RectSide.LEFT;
                 }
@@ -110,7 +111,7 @@ public class CollisionManager implements Updatable {
         for (Rectangle wall : walls) {
             RectSide rectSide = getSideWithRect(rectangle, wall);
 
-            if (rectSide == RectSide.TOP) {
+            if (rectSide == TOP) {
                 return wall;
             }
         }

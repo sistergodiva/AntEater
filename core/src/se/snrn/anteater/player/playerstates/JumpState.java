@@ -27,12 +27,12 @@ public class JumpState implements PlayerState {
     @Override
     public PlayerState handleInput(PlayerInput input) {
         if(input == PlayerInput.LEFT_START){
-            player.getVelocity().set(-5, 0);
+            player.getVelocity().x = -5;
             return null;
 
         }
         if(input == PlayerInput.RIGHT_START){
-            player.getVelocity().set(5,0);
+            player.getVelocity().x = 5;
             return null;
 
         }
@@ -57,7 +57,7 @@ public class JumpState implements PlayerState {
 
     @Override
     public void enter() {
-        player.addYVelocity(30);
+        player.addYVelocity(20);
     }
 
     @Override

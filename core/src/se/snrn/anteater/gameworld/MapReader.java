@@ -2,6 +2,8 @@ package se.snrn.anteater.gameworld;
 
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.objects.PolygonMapObject;
+import com.badlogic.gdx.maps.objects.PolylineMapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Rectangle;
@@ -11,6 +13,7 @@ import java.util.ArrayList;
 
 public class MapReader {
 
+    private ArrayList<PolylineMapObject> enemyPaths;
     private ArrayList<Rectangle> walls;
     private TiledMap tiledMap;
     private MapLayer layer;
@@ -20,6 +23,7 @@ public class MapReader {
 
         honeyCombs = new ArrayList<HoneyComb>();
         walls = new ArrayList<Rectangle>();
+        enemyPaths = new ArrayList<PolylineMapObject>();
         this.tiledMap = tiledMap;
 
          layer = this.tiledMap.getLayers().get("pickups");
@@ -39,6 +43,17 @@ public class MapReader {
             walls.add(wall.getRectangle());
         }
 
+        layer = this.tiledMap.getLayers().get("enemy");
+
+
+        for (MapObject object: layer.getObjects()
+                ) {
+            PolylineMapObject enemyPath = (PolylineMapObject) object;
+            enemyPaths.add(enemyPath);
+            System.out.println(enemyPath.getPolyline().getVertices().length);
+        }
+
+
 
     }
 
@@ -48,5 +63,9 @@ public class MapReader {
 
     public ArrayList<Rectangle> getWalls() {
         return walls;
+    }
+
+    public ArrayList<PolylineMapObject> getEnemyPaths() {
+        return enemyPaths;
     }
 }
